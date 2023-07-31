@@ -1,6 +1,10 @@
 import uuid
-import requests
 
+from starlette.testclient import TestClient
+
+from main import app
+
+client = TestClient(app)
 
 url = 'http://localhost:8000'
 
@@ -26,7 +30,7 @@ updated_submenu = {
 
 
 def test_create_menu():
-    response = requests.post(f"{url}/api/v1/menus", json=menu)
+    response = client.post(f"{url}/api/v1/menus", json=menu)
     assert response.status_code == 201, " Wrong status code"
     response = response.json()
     assert response["id"] == str(menu_id), "Wrong id"
@@ -35,13 +39,13 @@ def test_create_menu():
 
 
 def test_get_empty_submemenus():
-    response = requests.get(f"{url}/api/v1/menus/{submenu_id}/submenus")
+    response = client.get(f"{url}/api/v1/menus/{submenu_id}/submenus")
     assert response.status_code == 200, " Wrong status code"
     assert response.json() == []
 
 
 def test_create_submenu():
-    response = requests.post(f"{url}/api/v1/menus/{submenu_id}/submenus", json=submenu)
+    response = client.post(f"{url}/api/v1/menus/{submenu_id}/submenus", json=submenu)
     assert response.status_code == 201, " Wrong status code"
     response = response.json()
     assert response["id"] == str(submenu_id), "Wrong id"
@@ -50,14 +54,14 @@ def test_create_submenu():
 
 
 def test_get_submenus():
-    response = requests.get(f"{url}/api/v1/menus/{submenu_id}/submenus")
+    response = client.get(f"{url}/api/v1/menus/{submenu_id}/submenus")
     assert response.status_code == 200, " Wrong status code"
     response = response.json()
     assert response != [], "Menu list not empty"
 
 
 def test_get_one_submenu():
-    response = requests.get(f"{url}/api/v1/menus/{menu_id}/submenus/{submenu_id}")
+    response = client.get(f"{url}/api/v1/menus/{menu_id}/submenus/{submenu_id}")
     assert response.status_code == 200, " Wrong status code"
     response = response.json()
     assert response["id"] == str(submenu_id), "Wrong id"
@@ -66,7 +70,7 @@ def test_get_one_submenu():
 
 
 def test_update_submenu():
-    response = requests.patch(f"{url}/api/v1/menus/{menu_id}/submenus/{submenu_id}", json=updated_submenu)
+    response = client.patch(f"{url}/api/v1/menus/{menu_id}/submenus/{submenu_id}", json=updated_submenu)
     assert response.status_code == 200, " Wrong status code"
     response = response.json()
     assert response["id"] == str(submenu_id), "Wrong id"
@@ -75,7 +79,7 @@ def test_update_submenu():
 
 
 def test_get_updated_submenu():
-    response = requests.get(f"{url}/api/v1/menus/{menu_id}/submenus/{submenu_id}")
+    response = client.get(f"{url}/api/v1/menus/{menu_id}/submenus/{submenu_id}")
     assert response.status_code == 200, " Wrong status code"
     response = response.json()
     assert response["id"] == str(submenu_id), "Wrong id"
@@ -84,29 +88,29 @@ def test_get_updated_submenu():
 
 
 def test_delete_submenu():
-    response = requests.delete(f"{url}/api/v1/menus/{menu_id}/submenus/{submenu_id}")
+    response = client.delete(f"{url}/api/v1/menus/{menu_id}/submenus/{submenu_id}")
     assert response.status_code == 200, " Wrong status code"
 
 
 def test_get_deleted_submemenus():
-    response = requests.get(f"{url}/api/v1/menus/{submenu_id}/submenus")
+    response = client.get(f"{url}/api/v1/menus/{submenu_id}/submenus")
     assert response.status_code == 200, " Wrong status code"
     assert response.json() == []
 
 
 def test_get_deleted_submenu():
-    response = requests.get(f"{url}/api/v1/menus/{menu_id}/submenus/{submenu_id}")
+    response = client.get(f"{url}/api/v1/menus/{menu_id}/submenus/{submenu_id}")
     assert response.status_code == 404, " Wrong status code"
     response = response.json()
     assert response["detail"] == "submenu not found", "Item not delete"
 
 
 def test_deleted_menu():
-    response = requests.delete(f"{url}/api/v1/menus/{menu_id}")
+    response = client.delete(f"{url}/api/v1/menus/{menu_id}")
     assert response.status_code == 200, " Wrong status code"
 
 
 def test_get_empty_menus():
-    response = requests.get(f"{url}/api/v1/menus")
+    response = client.get(f"{url}/api/v1/menus")
     assert response.status_code == 200, " Wrong status code"
     assert response.json() == [], "Menu list not empty"

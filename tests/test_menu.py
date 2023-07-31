@@ -1,6 +1,10 @@
 import uuid
-import requests
 
+from fastapi.testclient import TestClient
+
+from main import app
+
+client = TestClient(app)
 
 url = 'http://localhost:8000'
 
@@ -18,13 +22,13 @@ updated_menu = {
 }
 
 def test_get_empty_menus():
-    response = requests.get(f"{url}/api/v1/menus")
+    response = client.get(f"{url}/api/v1/menus")
     assert response.status_code == 200, " Wrong status code"
     assert response.json() == [], "Menu list not empty"
 
 
 def test_create_menu():
-    response = requests.post(f"{url}/api/v1/menus", json=menu)
+    response = client.post(f"{url}/api/v1/menus", json=menu)
     assert response.status_code == 201, " Wrong status code"
     response = response.json()
     assert response["id"] == str(menu_id), "Wrong id"
@@ -32,14 +36,14 @@ def test_create_menu():
     assert response["description"] == menu["description"], "Wrong description"
 
 def test_get_menus():
-    response = requests.get(f"{url}/api/v1/menus")
+    response = client.get(f"{url}/api/v1/menus")
     assert response.status_code == 200, " Wrong status code"
     response = response.json()
     assert response != [], "Menu list not empty"
 
 
 def test_get_one_menu():
-    response = requests.get(f"{url}/api/v1/menus")
+    response = client.get(f"{url}/api/v1/menus")
     assert response.status_code == 200, " Wrong status code"
     response = response.json()[0]
     assert response["target_menus_id"] == str(menu_id), "Wrong id"
@@ -47,7 +51,7 @@ def test_get_one_menu():
     assert response["target_menus_description"] == menu["description"], "Wrong description"
 
 def test_update_menu():
-    response = requests.patch(f'{url}/api/v1/menus/{menu_id}', json=updated_menu)
+    response = client.patch(f'{url}/api/v1/menus/{menu_id}', json=updated_menu)
     assert response.status_code == 200, " Wrong status code"
     response = response.json()
     assert response["id"] == str(menu_id), "Wrong id"
@@ -55,7 +59,7 @@ def test_update_menu():
     assert response["description"] == updated_menu["description"], "Wrong description"
 
 def test_get_update_one_menu():
-    response = requests.get(f'{url}/api/v1/menus/{menu_id}')
+    response = client.get(f'{url}/api/v1/menus/{menu_id}')
     assert response.status_code == 200, " Wrong status code"
     response = response.json()
     assert response["id"] == str(menu_id), "Wrong id"
@@ -64,18 +68,18 @@ def test_get_update_one_menu():
 
 
 def test_deleted_menu():
-    response = requests.delete(f"{url}/api/v1/menus/{menu_id}")
+    response = client.delete(f"{url}/api/v1/menus/{menu_id}")
     assert response.status_code == 200, " Wrong status code"
 
 
 def test_get_deleted_menus():
-    response = requests.get(f"{url}/api/v1/menus/")
+    response = client.get(f"{url}/api/v1/menus/")
     assert response.status_code == 200, " Wrong status code"
     assert response.json() == []
 
 
 def test_get_deleted_menu():
-    response = requests.get(f"{url}/api/v1/menus/{menu_id}")
+    response = client.get(f"{url}/api/v1/menus/{menu_id}")
     assert response.status_code == 404, " Wrong status code"
     response = response.json()
     assert response["detail"] == "menu not found", "Menu not delete"
